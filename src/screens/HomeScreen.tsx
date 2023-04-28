@@ -1,51 +1,108 @@
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import { StyleSheet, View } from "react-native";
 import useSWR from "swr";
-import { useTurnkeyWalletContext } from "../TurnkeyWalletContext";
+import {
+  alchemyNetworkList,
+  useTurnkeyWalletContext,
+  type TAlchemyNetwork,
+} from "../TurnkeyWalletContext";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { LabeledRow } from "../components/design";
 
-export function HomeScreen() {
+function useWalletQuery() {
   const { signer, network, privateKeyId } = useTurnkeyWalletContext();
 
-  const addressQuery = useSWR("/address", () => signer.getAddress());
-  const balanceQuery = useSWR("/balance", () => signer.getBalance());
-  const transactionCountQuery = useSWR("/transaction-count", () =>
-    signer.getTransactionCount()
-  );
+  return useSWR(`${network}/${privateKeyId}`, async () => {
+    return {
+      address: await signer.getAddress(),
+      balance: await signer.getBalance(),
+      transactionCount: await signer.getTransactionCount(),
+    };
+  });
+}
+
+export function HomeScreen() {
+  const { privateKeyId } = useTurnkeyWalletContext();
+
+  const walletQuery = useWalletQuery();
 
   return (
     <ScrollContainer
       onRefresh={async () => {
-        await Promise.all([
-          addressQuery.mutate(),
-          balanceQuery.mutate(),
-          transactionCountQuery.mutate(),
-        ]);
+        await walletQuery.mutate();
       }}
     >
       <View style={styles.root}>
         <LabeledRow label="Turnkey Private Key ID" value={privateKeyId} />
-        <LabeledRow label="Current network" value={network} />
-        <LabeledRow label="Wallet address" value={addressQuery.data ?? "–"} />
+        <NetworkRow />
+        <LabeledRow
+          label="Wallet address"
+          value={walletQuery.data?.address ?? "–"}
+        />
         <LabeledRow
           label="Wallet balance"
           value={
-            balanceQuery.data
-              ? `${ethers.utils.formatEther(balanceQuery.data)} Ether`
+            walletQuery.data?.balance != null
+              ? `${ethers.utils.formatEther(walletQuery.data?.balance)} Ether`
               : "–"
           }
         />
         <LabeledRow
           label="Transaction count"
           value={
-            transactionCountQuery.data
-              ? String(transactionCountQuery.data)
+            walletQuery.data?.transactionCount != null
+              ? String(walletQuery.data?.transactionCount)
               : "–"
           }
         />
       </View>
     </ScrollContainer>
+  );
+}
+
+function getNetworkDisplayValue(network: TAlchemyNetwork): string {
+  return network === "homestead" ? "mainnet" : network;
+}
+
+function NetworkRow() {
+  const { showActionSheetWithOptions } = useActionSheet();
+  const { network: currentNetwork, setNetwork } = useTurnkeyWalletContext();
+
+  return (
+    <LabeledRow
+      auxiliary="Tap to change"
+      label="Current network"
+      value={getNetworkDisplayValue(currentNetwork)}
+      onValuePress={() => {
+        const displayList = alchemyNetworkList.map(getNetworkDisplayValue);
+
+        const options = [...displayList, "Cancel"];
+        const cancelButtonIndex = options.length - 1;
+
+        showActionSheetWithOptions(
+          {
+            options: options,
+            cancelButtonIndex,
+          },
+          (selectedIndex) => {
+            if (selectedIndex == null || selectedIndex === cancelButtonIndex) {
+              return;
+            }
+
+            const selectedNetwork = alchemyNetworkList[selectedIndex];
+            if (
+              !alchemyNetworkList.includes(selectedNetwork) ||
+              selectedNetwork === currentNetwork
+            ) {
+              return;
+            }
+
+            setNetwork(selectedNetwork);
+          }
+        );
+      }}
+    />
   );
 }
 

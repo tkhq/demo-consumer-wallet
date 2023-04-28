@@ -34,23 +34,23 @@ export function LabeledRow(props: {
   label: string;
   value: string;
   auxiliary?: string;
-  onValuePress?: () => void | Promise<void>;
+  onValuePress?: (() => void) | (() => Promise<void>);
 }) {
   const { label, value, auxiliary, onValuePress } = props;
 
   return (
-    <LabeledContent label={label} auxiliary={auxiliary}>
-      <TouchableOpacity
-        onPress={
-          onValuePress ??
-          (() => {
-            Clipboard.setStringAsync(value);
-          })
-        }
-      >
+    <TouchableOpacity
+      onPress={
+        onValuePress ??
+        (() => {
+          Clipboard.setStringAsync(value);
+        })
+      }
+    >
+      <LabeledContent label={label} auxiliary={auxiliary}>
         <MonospacedText>{value}</MonospacedText>
-      </TouchableOpacity>
-    </LabeledContent>
+      </LabeledContent>
+    </TouchableOpacity>
   );
 }
 
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   auxiliary: {
     fontSize: 14,
     lineHeight: 14 * 1.5,
+    color: "#475569",
   },
   mono: {
     fontSize: 14,

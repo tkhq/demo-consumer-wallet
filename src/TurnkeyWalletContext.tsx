@@ -15,20 +15,23 @@ const TURNKEY_PRIVATE_KEY_ID =
 const ALCHEMY_API_KEY = ExpoConstants.manifest?.extra?.ALCHEMY_API_KEY;
 
 // This is the list that Alchemy supports in Ethers v5
-type TNetwork =
-  | "homestead"
-  | "goerli"
-  | "matic"
-  | "maticmum"
-  | "arbitrum"
-  | "arbitrum-goerli"
-  | "optimism"
-  | "optimism-goerli";
+export const alchemyNetworkList = [
+  "homestead",
+  "goerli",
+  "matic",
+  "maticmum",
+  "arbitrum",
+  "arbitrum-goerli",
+  "optimism",
+  "optimism-goerli",
+] as const;
+
+export type TAlchemyNetwork = (typeof alchemyNetworkList)[number];
 
 type TTurnkeyWalletContextValue = {
   signer: TurnkeySigner;
-  network: TNetwork;
-  setNetwork: (x: TNetwork) => void;
+  network: TAlchemyNetwork;
+  setNetwork: (x: TAlchemyNetwork) => void;
   privateKeyId: string;
   setPrivateKeyId: (x: string) => void;
 };
@@ -44,7 +47,7 @@ export function TurnkeyWalletContextProvider(props: {
   const [privateKeyId, setPrivateKeyId] = React.useState(
     TURNKEY_PRIVATE_KEY_ID
   );
-  const [network, setNetwork] = React.useState<TNetwork>("goerli");
+  const [network, setNetwork] = React.useState<TAlchemyNetwork>("goerli");
 
   const contextValue = React.useMemo(
     () => ({

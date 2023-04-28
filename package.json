@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@ethersproject/shims": "~5.7.0",
+    "@expo/react-native-action-sheet": "~4.0.1",
     "@expo/vector-icons": "~13.0.0",
     "@peculiar/webcrypto": "~1.4.3",
     "@react-navigation/native": "~6.1.6",
