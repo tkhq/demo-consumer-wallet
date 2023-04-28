@@ -1,22 +1,16 @@
 import { ActionSheetProvider } from "@expo/react-native-action-sheet";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
-import {
-  createNativeStackNavigator,
-  type NativeStackNavigationProp,
-} from "@react-navigation/native-stack";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TurnkeyWalletContextProvider } from "./TurnkeyWalletContext";
+import { useTypedNavigation, type TStackParamList } from "./navigation";
 import { HomeScreen } from "./screens/HomeScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
-
-type TStackParamList = {
-  wallet: undefined;
-  settings: undefined;
-};
+import { WalletConnectScreen } from "./screens/WalletConnectScreen";
 
 const Stack = createNativeStackNavigator<TStackParamList>();
 
@@ -28,9 +22,9 @@ export function AppRoot() {
           <RootSiblingParent>
             <SafeAreaProvider>
               <NavigationContainer>
-                <Stack.Navigator initialRouteName="wallet">
+                <Stack.Navigator initialRouteName="home">
                   <Stack.Screen
-                    name="wallet"
+                    name="home"
                     options={{
                       title: "Wallet",
                       headerLargeTitle: true,
@@ -42,6 +36,11 @@ export function AppRoot() {
                     name="settings"
                     options={{ title: "Settings", presentation: "modal" }}
                     component={SettingsScreen}
+                  />
+                  <Stack.Screen
+                    name="walletconnect"
+                    options={{ title: "WalletConnect", presentation: "modal" }}
+                    component={WalletConnectScreen}
                   />
                 </Stack.Navigator>
               </NavigationContainer>
@@ -56,8 +55,7 @@ export function AppRoot() {
 }
 
 function SettingsButton() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<TStackParamList>>();
+  const navigation = useTypedNavigation();
 
   return (
     <TouchableOpacity

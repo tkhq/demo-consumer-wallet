@@ -1,6 +1,7 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
-import { StyleSheet, View } from "react-native";
+import * as React from "react";
+import { Button, StyleSheet, View } from "react-native";
 import useSWR from "swr";
 import {
   alchemyNetworkList,
@@ -8,7 +9,8 @@ import {
   type TAlchemyNetwork,
 } from "../TurnkeyWalletContext";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { LabeledRow } from "../components/design";
+import { LabeledRow, LabeledTextInput } from "../components/design";
+import { useTypedNavigation } from "../navigation";
 
 function useWalletQuery() {
   const { signer, network, privateKeyId } = useTurnkeyWalletContext();
@@ -30,7 +32,7 @@ export function HomeScreen() {
   return (
     <ScrollContainer
       onRefresh={async () => {
-        await walletQuery.mutate();
+        await walletQuery.mutate(undefined);
       }}
     >
       <View style={styles.root}>
@@ -56,6 +58,7 @@ export function HomeScreen() {
               : "–"
           }
         />
+        <WalletConnectView />
       </View>
     </ScrollContainer>
   );
@@ -106,8 +109,39 @@ function NetworkRow() {
   );
 }
 
+function WalletConnectView() {
+  const [uri, setUri] = React.useState<string>("");
+  const navigation = useTypedNavigation();
+
+  return (
+    <>
+      <LabeledTextInput
+        value={uri}
+        label="WalletConnect link"
+        auxiliary="Copy from QR code"
+        onChangeText={setUri}
+        placeholder="Paste link here (starts with wc:...)"
+      />
+      <View style={styles.connectButtonWrapper}>
+        <Button
+          title="Connect"
+          disabled={!uri.startsWith("wc:")}
+          onPress={() => {
+            navigation.navigate("walletconnect", {
+              uri,
+            });
+          }}
+        />
+      </View>
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  connectButtonWrapper: {
+    padding: 4,
   },
 });
