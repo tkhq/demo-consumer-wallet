@@ -15,6 +15,7 @@ export function ScrollContainer(props: {
         style={styles.scrollView}
         contentInsetAdjustmentBehavior="automatic"
         keyboardDismissMode="interactive"
+        automaticallyAdjustKeyboardInsets={true}
         refreshControl={
           onRefresh != null ? (
             <RefreshControl
