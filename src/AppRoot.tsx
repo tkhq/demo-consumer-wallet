@@ -1,20 +1,63 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import {
+  createNativeStackNavigator,
+  type NativeStackNavigationProp,
+} from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { HomeScreen } from "./screens/HomeScreen";
+import { SettingsScreen } from "./screens/SettingsScreen";
+
+type TStackParamList = {
+  wallet: undefined;
+  settings: undefined;
+};
+
+const Stack = createNativeStackNavigator<TStackParamList>();
 
 export function AppRoot() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
+    <>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="wallet">
+            <Stack.Screen
+              name="wallet"
+              options={{
+                title: "Wallet",
+                headerLargeTitle: true,
+                headerRight: SettingsButton,
+              }}
+              component={HomeScreen}
+            />
+            <Stack.Screen
+              name="settings"
+              options={{ title: "Settings", presentation: "modal" }}
+              component={SettingsScreen}
+            />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </SafeAreaProvider>
+
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+function SettingsButton() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<TStackParamList>>();
+
+  return (
+    <Pressable
+      style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+      onPress={() => {
+        navigation.navigate("settings");
+      }}
+    >
+      <Ionicons name="settings-outline" size={24} />
+    </Pressable>
+  );
+}
