@@ -2,7 +2,7 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import * as React from "react";
 import { Button, Keyboard, StyleSheet, View } from "react-native";
-import useSWR from "swr";
+import { useWalletQuery } from "../TurnkeyQuery";
 import {
   alchemyNetworkList,
   useTurnkeyWalletContext,
@@ -11,19 +11,6 @@ import { ScrollContainer } from "../components/ScrollContainer";
 import { LabeledRow, LabeledTextInput } from "../components/design";
 import { useTypedNavigation } from "../navigation";
 import { getNetworkDisplayValue } from "../shared";
-
-function useWalletQuery() {
-  const { signer, network, privateKeyId } = useTurnkeyWalletContext();
-
-  return useSWR(`/wallet/${network}/${privateKeyId}`, async () => {
-    return {
-      address: await signer.getAddress(),
-      balance: await signer.getBalance(),
-      transactionCount: await signer.getTransactionCount(),
-      chainId: await signer.getChainId(),
-    };
-  });
-}
 
 export function HomeScreen() {
   const { privateKeyId } = useTurnkeyWalletContext();

@@ -2,32 +2,12 @@ import { ethers } from "ethers";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import useSWR from "swr";
-import {
-  ETHERSCAN_API_KEY,
-  useTurnkeyWalletContext,
-} from "../TurnkeyWalletContext";
+import { useHistoryQuery } from "../TurnkeyQuery";
+import { useTurnkeyWalletContext } from "../TurnkeyWalletContext";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { LabeledRow } from "../components/design";
 import { getNetworkDisplayValue } from "../shared";
 
-function useHistoryQuery() {
-  const { signer, network, privateKeyId } = useTurnkeyWalletContext();
-
-  return useSWR(`/history/${network}/${privateKeyId}`, async () => {
-    const address = await signer.getAddress();
-    const etherscanProvider = new ethers.providers.EtherscanProvider(
-      network,
-      ETHERSCAN_API_KEY
-    );
-    const transactionList = await etherscanProvider.getHistory(address);
-
-    return {
-      address,
-      transactionList,
-    };
-  });
-}
 export function HistoryScreen() {
   const historyQuery = useHistoryQuery();
   const { network } = useTurnkeyWalletContext();
