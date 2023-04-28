@@ -7,6 +7,7 @@ import {
 import { StatusBar } from "expo-status-bar";
 import { Pressable } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { TurnkeyWalletContextProvider } from "./TurnkeyWalletContext";
 import { HomeScreen } from "./screens/HomeScreen";
 import { SettingsScreen } from "./screens/SettingsScreen";
 
@@ -20,26 +21,28 @@ const Stack = createNativeStackNavigator<TStackParamList>();
 export function AppRoot() {
   return (
     <>
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <Stack.Navigator initialRouteName="wallet">
-            <Stack.Screen
-              name="wallet"
-              options={{
-                title: "Wallet",
-                headerLargeTitle: true,
-                headerRight: SettingsButton,
-              }}
-              component={HomeScreen}
-            />
-            <Stack.Screen
-              name="settings"
-              options={{ title: "Settings", presentation: "modal" }}
-              component={SettingsScreen}
-            />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </SafeAreaProvider>
+      <TurnkeyWalletContextProvider>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <Stack.Navigator initialRouteName="wallet">
+              <Stack.Screen
+                name="wallet"
+                options={{
+                  title: "Wallet",
+                  headerLargeTitle: true,
+                  headerRight: SettingsButton,
+                }}
+                component={HomeScreen}
+              />
+              <Stack.Screen
+                name="settings"
+                options={{ title: "Settings", presentation: "modal" }}
+                component={SettingsScreen}
+              />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </TurnkeyWalletContextProvider>
 
       <StatusBar style="auto" />
     </>

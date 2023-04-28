@@ -1,29 +1,49 @@
 import { ethers } from "ethers";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import useSWR from "swr";
-import { connectedTurnkeySigner } from "../TurnkeyWallet";
+import { useTurnkeyWalletContext } from "../TurnkeyWalletContext";
 import { ScrollContainer } from "../components/ScrollContainer";
+import { LabeledRow } from "../components/design";
 
 export function HomeScreen() {
-  const addressQuery = useSWR("/address", () =>
-    connectedTurnkeySigner.getAddress()
-  );
-  const balanceQuery = useSWR("/balance", () =>
-    connectedTurnkeySigner.getBalance()
+  const { signer, network, privateKeyId } = useTurnkeyWalletContext();
+
+  const addressQuery = useSWR("/address", () => signer.getAddress());
+  const balanceQuery = useSWR("/balance", () => signer.getBalance());
+  const transactionCountQuery = useSWR("/transaction-count", () =>
+    signer.getTransactionCount()
   );
 
   return (
     <ScrollContainer
       onRefresh={async () => {
-        await Promise.all([addressQuery.mutate(), balanceQuery.mutate()]);
+        await Promise.all([
+          addressQuery.mutate(),
+          balanceQuery.mutate(),
+          transactionCountQuery.mutate(),
+        ]);
       }}
     >
       <View style={styles.root}>
-        <Text>Your address is: {addressQuery.data}</Text>
-        <Text>
-          Your balance is: {ethers.utils.formatEther(balanceQuery.data ?? 0)}{" "}
-          Ether
-        </Text>
+        <LabeledRow label="Turnkey Private Key ID" value={privateKeyId} />
+        <LabeledRow label="Current network" value={network} />
+        <LabeledRow label="Wallet address" value={addressQuery.data ?? "–"} />
+        <LabeledRow
+          label="Wallet balance"
+          value={
+            balanceQuery.data
+              ? `${ethers.utils.formatEther(balanceQuery.data)} Ether`
+              : "–"
+          }
+        />
+        <LabeledRow
+          label="Transaction count"
+          value={
+            transactionCountQuery.data
+              ? String(transactionCountQuery.data)
+              : "–"
+          }
+        />
       </View>
     </ScrollContainer>
   );
