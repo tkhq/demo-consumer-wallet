@@ -1,7 +1,7 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import * as React from "react";
-import { Button, StyleSheet, View } from "react-native";
+import { Button, Keyboard, StyleSheet, View } from "react-native";
 import useSWR from "swr";
 import {
   alchemyNetworkList,
@@ -20,6 +20,7 @@ function useWalletQuery() {
       address: await signer.getAddress(),
       balance: await signer.getBalance(),
       transactionCount: await signer.getTransactionCount(),
+      chainId: await signer.getChainId(),
     };
   });
 }
@@ -123,6 +124,8 @@ function WalletConnectView() {
           title="Connect"
           disabled={!uri.startsWith("wc:")}
           onPress={() => {
+            Keyboard.dismiss();
+
             navigation.navigate("walletconnect", {
               uri,
             });
