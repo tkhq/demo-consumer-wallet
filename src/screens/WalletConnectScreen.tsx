@@ -1,7 +1,7 @@
 import WalletConnect from "@walletconnect/client";
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
-import { useWalletQuery } from "../TurnkeyQuery";
+import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import { LabeledRow } from "../components/Design";
 import { LogView, useLogViewData } from "../components/LogView";
 import { usePrompt } from "../components/Prompt";

@@ -2,15 +2,15 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import * as React from "react";
 import { Button, Keyboard, StyleSheet, View } from "react-native";
-import { useWalletQuery } from "../TurnkeyQuery";
+import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import {
   alchemyNetworkList,
   useTurnkeyWalletContext,
-} from "../TurnkeyWalletContext";
+} from "../turnkey/TurnkeyWalletContext";
 import { LabeledRow, LabeledTextInput } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { useTypedNavigation } from "../navigation";
-import { getNetworkDisplayValue } from "../shared";
+import { getNetworkDisplayValue } from "../utils";
 
 export function HomeScreen() {
   const { privateKeyId } = useTurnkeyWalletContext();

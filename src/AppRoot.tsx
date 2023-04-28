@@ -6,7 +6,7 @@ import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
 import { RootSiblingParent } from "react-native-root-siblings";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { TurnkeyWalletContextProvider } from "./TurnkeyWalletContext";
+import { TurnkeyWalletContextProvider } from "./turnkey/TurnkeyWalletContext";
 import { useTypedNavigation, type TStackParamList } from "./navigation";
 import { HistoryScreen } from "./screens/HistoryScreen";
 import { HomeScreen } from "./screens/HomeScreen";

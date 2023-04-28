@@ -2,11 +2,11 @@ import { ethers } from "ethers";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useHistoryQuery } from "../TurnkeyQuery";
-import { useTurnkeyWalletContext } from "../TurnkeyWalletContext";
+import { useHistoryQuery } from "../turnkey/TurnkeyQuery";
+import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
 import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { getNetworkDisplayValue } from "../shared";
+import { getNetworkDisplayValue } from "../utils";
 
 export function HistoryScreen() {
   const historyQuery = useHistoryQuery();

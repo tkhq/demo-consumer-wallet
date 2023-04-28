@@ -14,7 +14,10 @@ export function useHistoryQuery() {
       network,
       ETHERSCAN_API_KEY
     );
-    const transactionList = await etherscanProvider.getHistory(address);
+
+    const transactionList = [
+      ...(await etherscanProvider.getHistory(address)),
+    ].sort((item1, item2) => (item2.timestamp ?? 0) - (item1.timestamp ?? 0));
 
     return {
       address,
