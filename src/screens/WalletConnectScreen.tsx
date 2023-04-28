@@ -103,78 +103,73 @@ function useWalletConnectSubscription(input: { uri: string }) {
         ...WALLETCONNECT_RESERVED_EVENTS,
         ...WALLETCONNECT_SIGNING_METHODS,
         ...WALLETCONNECT_STATE_METHODS,
-      ]
-        .filter((x) => x !== "session_request")
-        .forEach((eventName) => {
-          connector.on(eventName, async (error, payload) => {
-            if (error != null) {
+      ].forEach((eventName) => {
+        connector.on(eventName, async (error, payload) => {
+          const label = "`" + eventName + "`";
+
+          if (error != null) {
+            appendLog({
+              label,
+              data: `Error: ${error.message}`,
+            });
+            return;
+          }
+
+          switch (eventName) {
+            case "session_request": {
               appendLog({
-                label: "`" + eventName + "`",
-                data: `Error: ${error.message}`,
+                label,
+                data: "Handshaking",
               });
-            } else {
-              appendLog({
-                label: "`" + eventName + "`",
-                data: payload,
+
+              const handshakeUserResponse = await showPrompt({
+                title: "WalletConnect Session Request",
+                message: `Do you want to connect to the WalletConnect session?`,
+                actionList: [
+                  {
+                    id: "APPROVE",
+                    title: "Approve",
+                    type: "default",
+                  },
+                  {
+                    id: "REJECT",
+                    title: "Reject",
+                    type: "cancel",
+                  },
+                ],
               });
+
+              if (handshakeUserResponse.id === "APPROVE") {
+                appendLog({
+                  label: "User action",
+                  data: "Approved connection request",
+                });
+
+                connector.approveSession({
+                  chainId,
+                  accounts: [address],
+                });
+              } else if (handshakeUserResponse.id === "REJECT") {
+                appendLog({
+                  label: "User action",
+                  data: "Rejected connection request",
+                });
+
+                connector.rejectSession();
+              }
+              return;
             }
+          }
+
+          appendLog({
+            label: label + " (unimplemented)",
+            data: payload,
           });
         });
-
-      connector.on("session_request", async (error, payload) => {
-        const label = "`session_request`";
-
-        appendLog({
-          label,
-          data: "Handshaking",
-        });
-
-        if (error != null) {
-          appendLog({
-            label,
-            data: `Error: ${error.message}`,
-          });
-        }
-
-        const handshakeUserResponse = await showPrompt({
-          title: "WalletConnect Session Request",
-          message: `Do you want to connect to the WalletConnect session?`,
-          actionList: [
-            {
-              id: "APPROVE",
-              title: "Approve",
-              type: "default",
-            },
-            {
-              id: "REJECT",
-              title: "Reject",
-              type: "cancel",
-            },
-          ],
-        });
-
-        if (handshakeUserResponse.id === "APPROVE") {
-          appendLog({
-            label: "User input",
-            data: "Connection approved",
-          });
-
-          connector.approveSession({
-            chainId,
-            accounts: [address],
-          });
-        } else if (handshakeUserResponse.id === "REJECT") {
-          appendLog({
-            label: "User input",
-            data: "Connection rejected",
-          });
-
-          connector.rejectSession();
-        }
       });
     } catch (error) {
       appendLog({
-        label: "WalletConnect",
+        label: "Failed to connect",
         data: `Error: ${(error as Error).message}`,
       });
     }

@@ -73,8 +73,16 @@ export function LabeledTextInput(props: {
   value: string;
   onChangeText: (text: string) => void;
   auxiliary?: string;
+  onSubmitEditing?: () => void;
 }) {
-  const { label, placeholder, value, onChangeText, auxiliary } = props;
+  const {
+    label,
+    placeholder,
+    value,
+    onChangeText,
+    auxiliary,
+    onSubmitEditing,
+  } = props;
 
   return (
     <LabeledContent label={label} auxiliary={auxiliary}>
@@ -90,6 +98,7 @@ export function LabeledTextInput(props: {
         returnKeyType="go"
         value={value}
         onChangeText={onChangeText}
+        onSubmitEditing={onSubmitEditing}
       />
     </LabeledContent>
   );

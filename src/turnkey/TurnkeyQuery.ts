@@ -1,9 +1,9 @@
+import { ethers } from "ethers";
 import useSWR from "swr";
 import {
-  useTurnkeyWalletContext,
   ETHERSCAN_API_KEY,
+  useTurnkeyWalletContext,
 } from "./TurnkeyWalletContext";
-import { ethers } from "ethers";
 
 export function useHistoryQuery() {
   const { signer, network, privateKeyId } = useTurnkeyWalletContext();

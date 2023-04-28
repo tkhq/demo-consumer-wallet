@@ -106,6 +106,12 @@ function WalletConnectView() {
   const [uri, setUri] = React.useState<string>("");
   const navigation = useTypedNavigation();
 
+  const doNavigate = () => {
+    navigation.navigate("walletconnect", {
+      uri,
+    });
+  };
+
   return (
     <>
       <LabeledTextInput
@@ -114,6 +120,7 @@ function WalletConnectView() {
         auxiliary="Copy from QR code"
         onChangeText={setUri}
         placeholder="Paste link here (starts with wc:...)"
+        onSubmitEditing={doNavigate}
       />
       <View style={styles.connectButtonWrapper}>
         <Button
@@ -122,9 +129,7 @@ function WalletConnectView() {
           onPress={() => {
             Keyboard.dismiss();
 
-            navigation.navigate("walletconnect", {
-              uri,
-            });
+            doNavigate();
           }}
         />
       </View>
