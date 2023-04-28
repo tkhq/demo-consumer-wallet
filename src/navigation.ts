@@ -6,7 +6,7 @@ import type {
 
 export type TStackParamList = {
   home: undefined;
-  settings: undefined;
+  history: undefined;
   walletconnect: { uri: string };
 };
 

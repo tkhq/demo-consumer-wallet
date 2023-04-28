@@ -6,16 +6,16 @@ import useSWR from "swr";
 import {
   alchemyNetworkList,
   useTurnkeyWalletContext,
-  type TAlchemyNetwork,
 } from "../TurnkeyWalletContext";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { LabeledRow, LabeledTextInput } from "../components/design";
 import { useTypedNavigation } from "../navigation";
+import { getNetworkDisplayValue } from "../shared";
 
 function useWalletQuery() {
   const { signer, network, privateKeyId } = useTurnkeyWalletContext();
 
-  return useSWR(`${network}/${privateKeyId}`, async () => {
+  return useSWR(`/wallet/${network}/${privateKeyId}`, async () => {
     return {
       address: await signer.getAddress(),
       balance: await signer.getBalance(),
@@ -46,7 +46,7 @@ export function HomeScreen() {
           label="Wallet balance"
           value={
             walletQuery.data?.balance != null
-              ? `${ethers.utils.formatEther(walletQuery.data?.balance)} Ether`
+              ? `${ethers.utils.formatEther(walletQuery.data?.balance)} ETH`
               : "–"
           }
         />
@@ -62,10 +62,6 @@ export function HomeScreen() {
       </View>
     </ScrollContainer>
   );
-}
-
-function getNetworkDisplayValue(network: TAlchemyNetwork): string {
-  return network === "homestead" ? "mainnet" : network;
 }
 
 function NetworkRow() {

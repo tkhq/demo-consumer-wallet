@@ -8,8 +8,8 @@ import { RootSiblingParent } from "react-native-root-siblings";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TurnkeyWalletContextProvider } from "./TurnkeyWalletContext";
 import { useTypedNavigation, type TStackParamList } from "./navigation";
+import { HistoryScreen } from "./screens/HistoryScreen";
 import { HomeScreen } from "./screens/HomeScreen";
-import { SettingsScreen } from "./screens/SettingsScreen";
 import { WalletConnectScreen } from "./screens/WalletConnectScreen";
 
 const Stack = createNativeStackNavigator<TStackParamList>();
@@ -28,14 +28,14 @@ export function AppRoot() {
                     options={{
                       title: "Wallet",
                       headerLargeTitle: true,
-                      headerRight: SettingsButton,
+                      headerRight: HistoryButton,
                     }}
                     component={HomeScreen}
                   />
                   <Stack.Screen
-                    name="settings"
-                    options={{ title: "Settings", presentation: "modal" }}
-                    component={SettingsScreen}
+                    name="history"
+                    options={{ title: "History", presentation: "modal" }}
+                    component={HistoryScreen}
                   />
                   <Stack.Screen
                     name="walletconnect"
@@ -54,16 +54,16 @@ export function AppRoot() {
   );
 }
 
-function SettingsButton() {
+function HistoryButton() {
   const navigation = useTypedNavigation();
 
   return (
     <TouchableOpacity
       onPress={() => {
-        navigation.navigate("settings");
+        navigation.navigate("history");
       }}
     >
-      <Ionicons name="settings-outline" size={24} />
+      <Ionicons name="book-outline" size={24} />
     </TouchableOpacity>
   );
 }

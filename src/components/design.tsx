@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   auxiliary: {
     fontSize: 14,
     lineHeight: 14 * 1.5,
-    color: "#475569",
+    color: "rgb(142, 142, 147)",
   },
   mono: {
     fontSize: 14,

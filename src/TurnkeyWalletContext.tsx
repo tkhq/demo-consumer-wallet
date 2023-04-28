@@ -14,6 +14,9 @@ const TURNKEY_PRIVATE_KEY_ID =
   ExpoConstants.manifest?.extra?.TURNKEY_PRIVATE_KEY_ID;
 const ALCHEMY_API_KEY = ExpoConstants.manifest?.extra?.ALCHEMY_API_KEY;
 
+export const ETHERSCAN_API_KEY =
+  ExpoConstants.manifest?.extra?.ETHERSCAN_API_KEY;
+
 // This is the list that Alchemy supports in Ethers v5
 export const alchemyNetworkList = [
   "homestead",
