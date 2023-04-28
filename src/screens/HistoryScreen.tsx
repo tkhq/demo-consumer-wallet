@@ -2,11 +2,11 @@ import { ethers } from "ethers";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { useHistoryQuery } from "../turnkey/TurnkeyQuery";
-import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
 import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { getNetworkDisplayValue } from "../utils";
+import { useHistoryQuery } from "../turnkey/TurnkeyQuery";
+import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
+import { getEtherscanUrl } from "../utils";
 
 export function HistoryScreen() {
   const historyQuery = useHistoryQuery();
@@ -41,23 +41,20 @@ export function HistoryScreen() {
             .filter(Boolean)
             .join(" ");
 
-          const etherscanLink =
-            network === "homestead"
-              ? `https://etherscan.io/tx/${item.hash}`
-              : `https://${network}.etherscan.io/tx/${item.hash}`;
+          const etherscanLink = getEtherscanUrl(`/tx/${item.hash}`, network);
 
           return (
             <LabeledRow
               key={item.hash}
-              auxiliary={getNetworkDisplayValue(network)}
+              auxiliary="Etherscan ↗"
               label={
                 item.timestamp != null
                   ? new Date(item.timestamp * 1000).toLocaleString()
                   : "–"
               }
               value={displayValue}
-              onValuePress={() => {
-                WebBrowser.openBrowserAsync(etherscanLink);
+              onValuePress={async () => {
+                await WebBrowser.openBrowserAsync(etherscanLink);
               }}
             />
           );

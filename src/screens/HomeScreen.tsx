@@ -1,21 +1,26 @@
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
+import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import { Button, Keyboard, StyleSheet, View } from "react-native";
+import { LabeledRow, LabeledTextInput } from "../components/Design";
+import { ScrollContainer } from "../components/ScrollContainer";
+import { useTypedNavigation } from "../navigation";
 import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import {
   alchemyNetworkList,
   useTurnkeyWalletContext,
 } from "../turnkey/TurnkeyWalletContext";
-import { LabeledRow, LabeledTextInput } from "../components/Design";
-import { ScrollContainer } from "../components/ScrollContainer";
-import { useTypedNavigation } from "../navigation";
-import { getNetworkDisplayValue } from "../utils";
+import { getEtherscanUrl, getNetworkDisplayValue } from "../utils";
 
 export function HomeScreen() {
-  const { privateKeyId } = useTurnkeyWalletContext();
+  const { privateKeyId, network } = useTurnkeyWalletContext();
 
   const walletQuery = useWalletQuery();
+
+  const address = walletQuery.data?.address;
+  const balance = walletQuery.data?.balance;
+  const transactionCount = walletQuery.data?.transactionCount;
 
   return (
     <ScrollContainer
@@ -28,23 +33,27 @@ export function HomeScreen() {
         <NetworkRow />
         <LabeledRow
           label="Wallet address"
-          value={walletQuery.data?.address ?? "–"}
+          auxiliary={address == null ? undefined : "Etherscan ↗"}
+          value={address ?? "–"}
+          onValuePress={
+            address == null
+              ? undefined
+              : async () => {
+                  await WebBrowser.openBrowserAsync(
+                    getEtherscanUrl(`/address/${address}`, network)
+                  );
+                }
+          }
         />
         <LabeledRow
           label="Wallet balance"
           value={
-            walletQuery.data?.balance != null
-              ? `${ethers.utils.formatEther(walletQuery.data?.balance)} ETH`
-              : "–"
+            balance != null ? `${ethers.utils.formatEther(balance)} ETH` : "–"
           }
         />
         <LabeledRow
           label="Transaction count"
-          value={
-            walletQuery.data?.transactionCount != null
-              ? String(walletQuery.data?.transactionCount)
-              : "–"
-          }
+          value={transactionCount != null ? String(transactionCount) : "–"}
         />
         <WalletConnectView />
       </View>
