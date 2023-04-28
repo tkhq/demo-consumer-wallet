@@ -1,9 +1,11 @@
 import WalletConnect from "@walletconnect/client";
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
+import { useWalletQuery } from "../TurnkeyQuery";
+import { LabeledRow } from "../components/Design";
+import { LogView, useLogViewData } from "../components/LogView";
 import { usePrompt } from "../components/Prompt";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { LabeledRow } from "../components/design";
 import type { TWalletConnectScreenProps } from "../navigation";
 
 // Get a (QR) link from https://example.walletconnect.org/
@@ -14,53 +16,97 @@ import type { TWalletConnectScreenProps } from "../navigation";
 // - https://github.com/WalletConnect/walletconnect-monorepo/tree/v1.0/packages/clients/
 export function WalletConnectScreen(props: TWalletConnectScreenProps) {
   const { uri } = props.route.params;
-  const [connectionState, setConnectionState] = React.useState(
-    "Establishing session"
-  );
-
   const { showPrompt } = usePrompt();
+  const walletQuery = useWalletQuery();
 
-  let connector: WalletConnect | null = null;
-  let errorMessage: string | null = null;
-  try {
-    connector = new WalletConnect({
-      uri,
-    });
+  const { logList, appendLog } = useLogViewData();
 
-    connector.on("session_request", async (error, payload) => {
-      setConnectionState("Handshaking");
+  const address = walletQuery.data?.address;
+  const chainId = walletQuery.data?.chainId;
+  const lastConnectedUri = React.useRef<string | null>(null);
 
-      const userResponse = await showPrompt({
-        title: "WalletConnect Session Request",
-        message: `Do you want to connect to the WalletConnect session?`,
-        actionList: [
-          {
-            id: "APPROVE",
-            title: "Approve",
-            type: "default",
-          },
-          {
-            id: "REJECT",
-            title: "Reject",
-            type: "cancel",
-          },
-        ],
+  React.useEffect(() => {
+    if (address == null || chainId == null) {
+      return;
+    }
+    if (lastConnectedUri.current === uri) {
+      return;
+    }
+
+    lastConnectedUri.current = uri;
+
+    try {
+      appendLog({
+        label: "Connection state",
+        data: "Initial request",
       });
-    });
-  } catch (error) {
-    errorMessage = (error as Error).message;
-  }
+
+      const connector = new WalletConnect({
+        uri,
+      });
+
+      connector.on("session_request", async (error, payload) => {
+        appendLog({
+          label: "Connection state",
+          data: "Handshaking",
+        });
+
+        if (error != null) {
+          appendLog({
+            label: "Connection state",
+            data: `Error: ${error.message}`,
+          });
+        }
+
+        const handshakeUserResponse = await showPrompt({
+          title: "WalletConnect Session Request",
+          message: `Do you want to connect to the WalletConnect session?`,
+          actionList: [
+            {
+              id: "APPROVE",
+              title: "Approve",
+              type: "default",
+            },
+            {
+              id: "REJECT",
+              title: "Reject",
+              type: "cancel",
+            },
+          ],
+        });
+
+        if (handshakeUserResponse.id === "APPROVE") {
+          appendLog({
+            label: "User input",
+            data: "Connection approved",
+          });
+
+          connector.approveSession({
+            chainId,
+            accounts: [address],
+          });
+        } else if (handshakeUserResponse.id === "REJECT") {
+          appendLog({
+            label: "User input",
+            data: "Connection rejected",
+          });
+
+          connector.rejectSession();
+        }
+      });
+    } catch (error) {
+      appendLog({
+        label: "Connection state",
+        data: `Error: ${(error as Error).message}`,
+      });
+    }
+  }, [uri, showPrompt, address, chainId, appendLog]);
 
   return (
     <ScrollContainer>
       <View style={styles.root}>
         <LabeledRow label="Connecting to" value={uri} />
-        <LabeledRow
-          label="Connection state"
-          value={
-            errorMessage != null ? `Error: ${errorMessage}` : connectionState
-          }
-        />
+        <LogView logList={logList} />
       </View>
     </ScrollContainer>
   );

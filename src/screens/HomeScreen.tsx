@@ -7,8 +7,8 @@ import {
   alchemyNetworkList,
   useTurnkeyWalletContext,
 } from "../TurnkeyWalletContext";
+import { LabeledRow, LabeledTextInput } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { LabeledRow, LabeledTextInput } from "../components/design";
 import { useTypedNavigation } from "../navigation";
 import { getNetworkDisplayValue } from "../shared";
 

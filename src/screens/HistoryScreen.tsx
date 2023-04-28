@@ -4,8 +4,8 @@ import * as React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useHistoryQuery } from "../TurnkeyQuery";
 import { useTurnkeyWalletContext } from "../TurnkeyWalletContext";
+import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { LabeledRow } from "../components/design";
 import { getNetworkDisplayValue } from "../shared";
 
 export function HistoryScreen() {
