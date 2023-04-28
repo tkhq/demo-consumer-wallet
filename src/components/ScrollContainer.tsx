@@ -3,13 +3,11 @@ import { RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 
 export function ScrollContainer(props: {
   children: React.ReactNode;
-  withRefreshControl?: boolean;
+  onRefresh?: () => Promise<void>;
 }) {
-  const { children, withRefreshControl = false } = props;
+  const { children, onRefresh = null } = props;
 
   const [isRefreshing, setIsRefreshing] = React.useState(false);
-  const [keyInvalidationIndex, setKeyInvalidationIndex] =
-    React.useState<number>(0); // Poor man's refresh control
 
   return (
     <View style={styles.root}>
@@ -17,22 +15,19 @@ export function ScrollContainer(props: {
         style={styles.scrollView}
         contentInsetAdjustmentBehavior="automatic"
         refreshControl={
-          withRefreshControl ? (
+          onRefresh != null ? (
             <RefreshControl
               refreshing={isRefreshing}
-              onRefresh={() => {
+              onRefresh={async () => {
                 setIsRefreshing(true);
-                setKeyInvalidationIndex((num) => num + 1);
-
-                setTimeout(() => {
-                  setIsRefreshing(false);
-                }, 500);
+                await onRefresh();
+                setIsRefreshing(false);
               }}
             />
           ) : undefined
         }
       >
-        <React.Fragment key={keyInvalidationIndex}>{children}</React.Fragment>
+        {children}
       </ScrollView>
     </View>
   );

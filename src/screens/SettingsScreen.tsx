@@ -3,7 +3,7 @@ import { ScrollContainer } from "../components/ScrollContainer";
 
 export function SettingsScreen() {
   return (
-    <ScrollContainer withRefreshControl={false}>
+    <ScrollContainer>
       <View style={styles.root}>
         <Text>👋 Settings screen</Text>
       </View>
