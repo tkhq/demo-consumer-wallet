@@ -1,13 +1,14 @@
+import * as Clipboard from "expo-clipboard";
 import * as React from "react";
 import {
+  Platform,
   StyleSheet,
   Text,
-  View,
-  Platform,
-  TouchableOpacity,
   TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import * as Clipboard from "expo-clipboard";
+import Toast from "react-native-root-toast";
 
 function LabeledContent(props: {
   label: string;
@@ -42,8 +43,14 @@ export function LabeledRow(props: {
     <TouchableOpacity
       onPress={
         onValuePress ??
-        (() => {
-          Clipboard.setStringAsync(value);
+        (async () => {
+          await Clipboard.setStringAsync(value);
+
+          Toast.show("Copied to clipboard", {
+            duration: 500,
+            position: -40,
+            shadow: false,
+          });
         })
       }
     >

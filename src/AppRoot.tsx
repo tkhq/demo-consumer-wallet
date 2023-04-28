@@ -7,6 +7,7 @@ import {
 } from "@react-navigation/native-stack";
 import { StatusBar } from "expo-status-bar";
 import { TouchableOpacity } from "react-native";
+import { RootSiblingParent } from "react-native-root-siblings";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { TurnkeyWalletContextProvider } from "./TurnkeyWalletContext";
 import { HomeScreen } from "./screens/HomeScreen";
@@ -24,26 +25,28 @@ export function AppRoot() {
     <>
       <TurnkeyWalletContextProvider>
         <ActionSheetProvider>
-          <SafeAreaProvider>
-            <NavigationContainer>
-              <Stack.Navigator initialRouteName="wallet">
-                <Stack.Screen
-                  name="wallet"
-                  options={{
-                    title: "Wallet",
-                    headerLargeTitle: true,
-                    headerRight: SettingsButton,
-                  }}
-                  component={HomeScreen}
-                />
-                <Stack.Screen
-                  name="settings"
-                  options={{ title: "Settings", presentation: "modal" }}
-                  component={SettingsScreen}
-                />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </SafeAreaProvider>
+          <RootSiblingParent>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <Stack.Navigator initialRouteName="wallet">
+                  <Stack.Screen
+                    name="wallet"
+                    options={{
+                      title: "Wallet",
+                      headerLargeTitle: true,
+                      headerRight: SettingsButton,
+                    }}
+                    component={HomeScreen}
+                  />
+                  <Stack.Screen
+                    name="settings"
+                    options={{ title: "Settings", presentation: "modal" }}
+                    component={SettingsScreen}
+                  />
+                </Stack.Navigator>
+              </NavigationContainer>
+            </SafeAreaProvider>
+          </RootSiblingParent>
         </ActionSheetProvider>
       </TurnkeyWalletContextProvider>
 
