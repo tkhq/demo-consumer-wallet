@@ -106,7 +106,13 @@ function WalletConnectView() {
   const [uri, setUri] = React.useState<string>("");
   const navigation = useTypedNavigation();
 
+  const isInputInvalid = !uri.startsWith("wc:");
+
   const doNavigate = () => {
+    if (isInputInvalid) {
+      return;
+    }
+
     navigation.navigate("walletconnect", {
       uri,
     });
@@ -125,7 +131,7 @@ function WalletConnectView() {
       <View style={styles.connectButtonWrapper}>
         <Button
           title="Connect"
-          disabled={!uri.startsWith("wc:")}
+          disabled={isInputInvalid}
           onPress={() => {
             Keyboard.dismiss();
 

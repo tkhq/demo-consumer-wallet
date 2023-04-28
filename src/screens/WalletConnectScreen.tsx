@@ -7,6 +7,8 @@ import { LogView, useLogViewData } from "../components/LogView";
 import { usePrompt } from "../components/Prompt";
 import { ScrollContainer } from "../components/ScrollContainer";
 import type { TWalletConnectScreenProps } from "../navigation";
+import { truncateAddress } from "../utils";
+import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
 
 // See https://github.com/WalletConnect/walletconnect-monorepo/blob/c94c1d608e75ef7f0e77572a8627d9412ade24c3/packages/helpers/utils/src/constants.ts
 const WALLETCONNECT_RESERVED_EVENTS = [
@@ -72,6 +74,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
   const { uri } = input;
   const { showPrompt } = usePrompt();
   const walletQuery = useWalletQuery();
+  const { network } = useTurnkeyWalletContext();
 
   const { logList, appendLog } = useLogViewData();
 
@@ -92,7 +95,9 @@ function useWalletConnectSubscription(input: { uri: string }) {
     try {
       appendLog({
         label: "WalletConnect",
-        data: "Establishing connection",
+        data: `Establishing connection (from ${truncateAddress(
+          address
+        )} on ${network})`,
       });
 
       const connector = new WalletConnect({
@@ -119,7 +124,9 @@ function useWalletConnectSubscription(input: { uri: string }) {
             case "session_request": {
               appendLog({
                 label,
-                data: "Handshaking",
+                data: `Handshaking with ${
+                  payload?.params?.[0]?.peerMeta?.url ?? "<unknown>"
+                }`,
               });
 
               const handshakeUserResponse = await showPrompt({
@@ -159,6 +166,22 @@ function useWalletConnectSubscription(input: { uri: string }) {
               }
               return;
             }
+            case "connect": {
+              appendLog({
+                label,
+                data: `Connected to ${
+                  payload?.params?.[0]?.peerMeta?.url ?? "<unknown>"
+                }`,
+              });
+              return;
+            }
+            case "disconnect": {
+              appendLog({
+                label,
+                data: "Session disconnected",
+              });
+              return;
+            }
           }
 
           appendLog({
@@ -173,7 +196,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
         data: `Error: ${(error as Error).message}`,
       });
     }
-  }, [uri, showPrompt, address, chainId, appendLog]);
+  }, [uri, showPrompt, address, chainId, appendLog, network]);
 
   return {
     logList,

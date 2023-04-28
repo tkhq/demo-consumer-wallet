@@ -6,7 +6,7 @@ import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { useHistoryQuery } from "../turnkey/TurnkeyQuery";
 import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
-import { getEtherscanUrl } from "../utils";
+import { getEtherscanUrl, truncateAddress } from "../utils";
 
 export function HistoryScreen() {
   const historyQuery = useHistoryQuery();
@@ -72,10 +72,6 @@ export function HistoryScreen() {
       <View style={styles.root}>{content}</View>
     </ScrollContainer>
   );
-}
-
-function truncateAddress(input: string): string {
-  return input.slice(0, 6) + "..." + input.slice(-4);
 }
 
 const styles = StyleSheet.create({
