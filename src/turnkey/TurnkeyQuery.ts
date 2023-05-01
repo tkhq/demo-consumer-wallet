@@ -8,7 +8,9 @@ import {
 export function useHistoryQuery() {
   const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
 
-  return useSWR(`/history/${network}/${privateKeyId}`, async () => {
+  const cacheKey = ["history", network, privateKeyId];
+
+  return useSWR(cacheKey, async () => {
     const address = await connectedSigner.getAddress();
     const etherscanProvider = new ethers.providers.EtherscanProvider(
       network,
@@ -29,7 +31,9 @@ export function useHistoryQuery() {
 export function useWalletQuery() {
   const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
 
-  return useSWR(`/wallet/${network}/${privateKeyId}`, async () => {
+  const cacheKey = ["wallet", network, privateKeyId];
+
+  return useSWR(cacheKey, async () => {
     return {
       address: await connectedSigner.getAddress(),
       balance: await connectedSigner.getBalance(),
