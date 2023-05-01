@@ -1,4 +1,5 @@
 import * as Clipboard from "expo-clipboard";
+import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
 import {
   Platform,
@@ -9,6 +10,7 @@ import {
   View,
 } from "react-native";
 import Toast from "react-native-root-toast";
+import { URL as PonyfilledUrl } from "react-native-url-polyfill";
 
 function LabeledContent(props: {
   label: string;
@@ -44,8 +46,12 @@ export function LabeledRow(props: {
       onPress={
         onValuePress ??
         (async () => {
-          await Clipboard.setStringAsync(value);
+          if (isWebUrl(value)) {
+            await WebBrowser.openBrowserAsync(value);
+            return;
+          }
 
+          await Clipboard.setStringAsync(value);
           Toast.show("Copied to clipboard", {
             duration: 500,
             position: -40,
@@ -59,6 +65,17 @@ export function LabeledRow(props: {
       </LabeledContent>
     </TouchableOpacity>
   );
+}
+
+function isWebUrl(input: string): boolean {
+  let url: PonyfilledUrl; // RN's default `URL` implementation doesn't support `#protocol`
+  try {
+    url = new PonyfilledUrl(input);
+  } catch (_) {
+    return false;
+  }
+
+  return url.protocol === "http:" || url.protocol === "https:";
 }
 
 export function MonospacedText(props: { children: React.ReactNode }) {

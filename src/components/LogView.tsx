@@ -46,7 +46,8 @@ export function useLogViewData(): {
         const id = item.id ?? String(performance.now());
         const timestamp = item.timestamp ?? Date.now();
 
-        return [...list, { ...item, id, timestamp }];
+        // Reverse chronological order
+        return [{ ...item, id, timestamp }, ...list];
       });
     }, []),
   };
