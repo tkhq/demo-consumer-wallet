@@ -6,10 +6,10 @@ import {
 } from "./TurnkeyWalletContext";
 
 export function useHistoryQuery() {
-  const { signer, network, privateKeyId } = useTurnkeyWalletContext();
+  const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
 
   return useSWR(`/history/${network}/${privateKeyId}`, async () => {
-    const address = await signer.getAddress();
+    const address = await connectedSigner.getAddress();
     const etherscanProvider = new ethers.providers.EtherscanProvider(
       network,
       ETHERSCAN_API_KEY
@@ -27,14 +27,14 @@ export function useHistoryQuery() {
 }
 
 export function useWalletQuery() {
-  const { signer, network, privateKeyId } = useTurnkeyWalletContext();
+  const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
 
   return useSWR(`/wallet/${network}/${privateKeyId}`, async () => {
     return {
-      address: await signer.getAddress(),
-      balance: await signer.getBalance(),
-      transactionCount: await signer.getTransactionCount(),
-      chainId: await signer.getChainId(),
+      address: await connectedSigner.getAddress(),
+      balance: await connectedSigner.getBalance(),
+      transactionCount: await connectedSigner.getTransactionCount(),
+      chainId: await connectedSigner.getChainId(),
     };
   });
 }

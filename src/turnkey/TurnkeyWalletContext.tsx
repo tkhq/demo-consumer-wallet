@@ -32,17 +32,15 @@ export const alchemyNetworkList = [
 export type TAlchemyNetwork = (typeof alchemyNetworkList)[number];
 
 type TTurnkeyWalletContextValue = {
-  signer: TurnkeySigner;
+  connectedSigner: TurnkeySigner;
   network: TAlchemyNetwork;
   setNetwork: (x: TAlchemyNetwork) => void;
   privateKeyId: string;
   setPrivateKeyId: (x: string) => void;
-};
+} | null;
 
-const TurnkeyWalletContext = React.createContext<TTurnkeyWalletContextValue>({
-  // @ts-expect-error -- not possible in practice
-  signer: null,
-});
+const TurnkeyWalletContext =
+  React.createContext<TTurnkeyWalletContextValue>(null);
 
 export function TurnkeyWalletContextProvider(props: {
   children: React.ReactNode;
@@ -52,25 +50,30 @@ export function TurnkeyWalletContextProvider(props: {
   );
   const [network, setNetwork] = React.useState<TAlchemyNetwork>("goerli");
 
-  const contextValue = React.useMemo(
-    () => ({
-      signer: new TurnkeySigner(
-        {
-          apiPublicKey: TURNKEY_API_PUBLIC_KEY,
-          apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
-          baseUrl: TURNKEY_BASE_URL,
-          organizationId: TURNKEY_ORGANIZATION_ID,
-          privateKeyId,
-        },
-        new ethers.providers.AlchemyProvider(network, ALCHEMY_API_KEY)
-      ),
+  const contextValue = React.useMemo(() => {
+    const signer = new TurnkeySigner({
+      apiPublicKey: TURNKEY_API_PUBLIC_KEY,
+      apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
+      baseUrl: TURNKEY_BASE_URL,
+      organizationId: TURNKEY_ORGANIZATION_ID,
+      privateKeyId,
+    });
+
+    const provider = new ethers.providers.AlchemyProvider(
+      network,
+      ALCHEMY_API_KEY
+    );
+
+    const connectedSigner = signer.connect(provider);
+
+    return {
+      connectedSigner,
       network,
       setNetwork,
       privateKeyId,
       setPrivateKeyId,
-    }),
-    [privateKeyId, network]
-  );
+    };
+  }, [privateKeyId, network]);
 
   return (
     <TurnkeyWalletContext.Provider value={contextValue}>
@@ -79,6 +82,14 @@ export function TurnkeyWalletContextProvider(props: {
   );
 }
 
-export function useTurnkeyWalletContext(): TTurnkeyWalletContextValue {
-  return React.useContext(TurnkeyWalletContext);
+export function useTurnkeyWalletContext(): NonNullable<TTurnkeyWalletContextValue> {
+  const value = React.useContext(TurnkeyWalletContext);
+
+  if (value == null) {
+    throw new Error(
+      `Context wasn't initialized. Did you forget to put a \`<TurnkeyWalletContextProvider>\` ancestor?`
+    );
+  }
+
+  return value;
 }

@@ -9,6 +9,8 @@ This repository features a minimal consumer wallet app powered by Turnkey. Behin
 ```bash
 $ corepack enable # Updates npm for the local project
 
+$ cp .env.example .env # Now update your credentials in `.env`
 $ npm install
 $ npm start
+# Press `i` to open the app in iOS Simulator. Install Xcode if you don't have it already.
 ```
