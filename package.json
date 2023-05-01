@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ethersproject/experimental": "~5.7.0",
     "@ethersproject/shims": "~5.7.0",
     "@expo/react-native-action-sheet": "~4.0.1",
     "@expo/vector-icons": "~13.0.0",

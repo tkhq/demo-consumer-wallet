@@ -1,14 +1,17 @@
 import WalletConnect from "@walletconnect/client";
 import * as React from "react";
 import { StyleSheet, View } from "react-native";
-import { useWalletQuery } from "../turnkey/TurnkeyQuery";
-import { LabeledRow } from "../components/Design";
 import { LogView, useLogViewData } from "../components/LogView";
 import { usePrompt } from "../components/Prompt";
 import { ScrollContainer } from "../components/ScrollContainer";
 import type { TWalletConnectScreenProps } from "../navigation";
-import { truncateAddress } from "../utils";
+import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import { useTurnkeyWalletContext } from "../turnkey/TurnkeyWalletContext";
+import {
+  getEtherscanUrl,
+  getNetworkDisplayValue,
+  truncateAddress,
+} from "../utils";
 
 // See https://github.com/WalletConnect/walletconnect-monorepo/blob/c94c1d608e75ef7f0e77572a8627d9412ade24c3/packages/helpers/utils/src/constants.ts
 const WALLETCONNECT_RESERVED_EVENTS = [
@@ -57,7 +60,6 @@ export function WalletConnectScreen(props: TWalletConnectScreenProps) {
   return (
     <ScrollContainer>
       <View style={styles.root}>
-        <LabeledRow label="Connecting to" value={uri} />
         <LogView logList={logList} />
       </View>
     </ScrollContainer>
@@ -74,7 +76,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
   const { uri } = input;
   const { showPrompt } = usePrompt();
   const walletQuery = useWalletQuery();
-  const { network } = useTurnkeyWalletContext();
+  const { eip1193, network } = useTurnkeyWalletContext();
 
   const { logList, appendLog } = useLogViewData();
 
@@ -97,7 +99,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
         label: "WalletConnect",
         data: `Establishing connection (from ${truncateAddress(
           address
-        )} on ${network})`,
+        )} on ${getNetworkDisplayValue(network)})`,
       });
 
       const connector = new WalletConnect({
@@ -129,9 +131,9 @@ function useWalletConnectSubscription(input: { uri: string }) {
                 }`,
               });
 
-              const handshakeUserResponse = await showPrompt({
+              const userInput = await showPrompt({
                 title: "WalletConnect Session Request",
-                message: `Do you want to connect to the WalletConnect session?`,
+                message: `Would you like to connect to the WalletConnect session?`,
                 actionList: [
                   {
                     id: "APPROVE",
@@ -146,7 +148,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
                 ],
               });
 
-              if (handshakeUserResponse.id === "APPROVE") {
+              if (userInput.id === "APPROVE") {
                 appendLog({
                   label: "User action",
                   data: "Approved connection request",
@@ -156,13 +158,15 @@ function useWalletConnectSubscription(input: { uri: string }) {
                   chainId,
                   accounts: [address],
                 });
-              } else if (handshakeUserResponse.id === "REJECT") {
+              } else if (userInput.id === "REJECT") {
                 appendLog({
                   label: "User action",
                   data: "Rejected connection request",
                 });
 
-                connector.rejectSession();
+                connector.rejectSession({
+                  message: "User rejected request",
+                });
               }
               return;
             }
@@ -182,6 +186,67 @@ function useWalletConnectSubscription(input: { uri: string }) {
               });
               return;
             }
+            case "eth_sendTransaction": {
+              appendLog({
+                label,
+                data: payload,
+              });
+
+              const userInput = await showPrompt({
+                title: `Request: ${label}`,
+                message: `Would you like to approve this request?`,
+                actionList: [
+                  {
+                    id: "APPROVE",
+                    title: "Approve",
+                    type: "default",
+                  },
+                  {
+                    id: "REJECT",
+                    title: "Reject",
+                    type: "cancel",
+                  },
+                ],
+              });
+
+              if (userInput.id === "APPROVE") {
+                appendLog({
+                  label: "User action",
+                  data: "Approved request",
+                });
+
+                const { method, params } = payload;
+                const txHash = await eip1193.send(
+                  method,
+                  cleanUpSendTxParams(params)
+                );
+
+                connector.approveRequest({
+                  id: payload.id,
+                  result: txHash,
+                });
+
+                const etherscanLink = getEtherscanUrl(`/tx/${txHash}`, network);
+
+                appendLog({
+                  label: "Transaction sent",
+                  data: etherscanLink,
+                });
+              } else if (userInput.id === "REJECT") {
+                appendLog({
+                  label: "User action",
+                  data: "Rejected request",
+                });
+
+                connector.rejectRequest({
+                  id: payload.id,
+                  error: {
+                    message: "User rejected request",
+                  },
+                });
+              }
+              return;
+            }
           }
 
           appendLog({
@@ -196,7 +261,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
         data: `Error: ${(error as Error).message}`,
       });
     }
-  }, [uri, showPrompt, address, chainId, appendLog, network]);
+  }, [uri, showPrompt, address, chainId, appendLog, network, eip1193]);
 
   return {
     logList,
@@ -208,3 +273,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+// Can't pass `gas` and `from` as-is to `Eip1193Bridge`
+// See https://github.com/ethers-io/ethers.js/issues/1683
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function cleanUpSendTxParams(params: any): any {
+  const clonedParam = { ...params[0] };
+
+  // TODO: Ask user for gas input
+  delete clonedParam.gas;
+  // TODO: verify that `from` matches the wallet's address
+  delete clonedParam.from;
+
+  return [clonedParam];
+}

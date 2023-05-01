@@ -1,3 +1,4 @@
+import { Eip1193Bridge } from "@ethersproject/experimental";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
 import ExpoConstants from "expo-constants";
@@ -33,6 +34,7 @@ export type TAlchemyNetwork = (typeof alchemyNetworkList)[number];
 
 type TTurnkeyWalletContextValue = {
   connectedSigner: TurnkeySigner;
+  eip1193: Eip1193Bridge;
   network: TAlchemyNetwork;
   setNetwork: (x: TAlchemyNetwork) => void;
   privateKeyId: string;
@@ -66,8 +68,11 @@ export function TurnkeyWalletContextProvider(props: {
 
     const connectedSigner = signer.connect(provider);
 
+    const eip1193 = new Eip1193Bridge(connectedSigner, provider);
+
     return {
       connectedSigner,
+      eip1193,
       network,
       setNetwork,
       privateKeyId,
