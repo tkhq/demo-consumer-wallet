@@ -38,6 +38,15 @@ const config = {
     favicon: "./assets/favicon.png",
   },
   extra: envResult.parsed,
+  plugins: [
+    [
+      "expo-barcode-scanner",
+      {
+        cameraPermission:
+          "Allow $(PRODUCT_NAME) to access your camera for QR code scanning.",
+      },
+    ],
+  ],
 };
 
 module.exports = config;

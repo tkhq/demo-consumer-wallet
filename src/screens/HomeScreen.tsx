@@ -2,10 +2,10 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
-import { Button, Keyboard, StyleSheet, View } from "react-native";
-import { LabeledRow, LabeledTextInput } from "../components/Design";
+import { StyleSheet, View } from "react-native";
+import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
-import { useTypedNavigation } from "../navigation";
+import { WalletConnectInputView } from "../components/WalletConnectInputView";
 import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import {
   alchemyNetworkList,
@@ -55,7 +55,7 @@ export function HomeScreen() {
           label="Transaction count"
           value={transactionCount != null ? String(transactionCount) : "–"}
         />
-        <WalletConnectView />
+        <WalletConnectInputView />
       </View>
     </ScrollContainer>
   );
@@ -102,52 +102,8 @@ function NetworkRow() {
   );
 }
 
-function WalletConnectView() {
-  const [uri, setUri] = React.useState<string>("");
-  const navigation = useTypedNavigation();
-
-  const isInputInvalid = !uri.startsWith("wc:");
-
-  const doNavigate = () => {
-    if (isInputInvalid) {
-      return;
-    }
-
-    navigation.navigate("walletconnect", {
-      uri,
-    });
-  };
-
-  return (
-    <>
-      <LabeledTextInput
-        value={uri}
-        label="WalletConnect link"
-        auxiliary="Copy from QR code"
-        onChangeText={setUri}
-        placeholder="Paste link here (starts with wc:...)"
-        onSubmitEditing={doNavigate}
-      />
-      <View style={styles.connectButtonWrapper}>
-        <Button
-          title="Connect"
-          disabled={isInputInvalid}
-          onPress={() => {
-            Keyboard.dismiss();
-
-            doNavigate();
-          }}
-        />
-      </View>
-    </>
-  );
-}
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-  },
-  connectButtonWrapper: {
-    padding: 4,
   },
 });

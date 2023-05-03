@@ -26,6 +26,7 @@
     "ethers": "~5.7.2",
     "events": "~3.3.0",
     "expo": "~48.0.15",
+    "expo-barcode-scanner": "~12.3.2",
     "expo-clipboard": "~4.1.2",
     "expo-constants": "~14.2.1",
     "expo-status-bar": "~1.4.4",
