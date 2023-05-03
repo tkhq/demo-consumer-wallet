@@ -1,22 +1,9 @@
 import { Eip1193Bridge } from "@ethersproject/experimental";
 import { TurnkeySigner } from "@turnkey/ethers";
 import { ethers } from "ethers";
-import ExpoConstants from "expo-constants";
 import * as React from "react";
-
-const TURNKEY_API_PUBLIC_KEY =
-  ExpoConstants.manifest?.extra?.TURNKEY_API_PUBLIC_KEY;
-const TURNKEY_API_PRIVATE_KEY =
-  ExpoConstants.manifest?.extra?.TURNKEY_API_PRIVATE_KEY;
-const TURNKEY_BASE_URL = ExpoConstants.manifest?.extra?.TURNKEY_BASE_URL;
-const TURNKEY_ORGANIZATION_ID =
-  ExpoConstants.manifest?.extra?.TURNKEY_ORGANIZATION_ID;
-const TURNKEY_PRIVATE_KEY_ID =
-  ExpoConstants.manifest?.extra?.TURNKEY_PRIVATE_KEY_ID;
-const ALCHEMY_API_KEY = ExpoConstants.manifest?.extra?.ALCHEMY_API_KEY;
-
-export const ETHERSCAN_API_KEY =
-  ExpoConstants.manifest?.extra?.ETHERSCAN_API_KEY;
+import { assertNonEmptyString } from "../utils";
+import { useCredentialsContext } from "./CredentialsContext";
 
 // This is the list that Alchemy supports in Ethers v5
 export const alchemyNetworkList = [
@@ -33,12 +20,11 @@ export const alchemyNetworkList = [
 export type TAlchemyNetwork = (typeof alchemyNetworkList)[number];
 
 type TTurnkeyWalletContextValue = {
-  connectedSigner: TurnkeySigner;
-  eip1193: Eip1193Bridge;
+  connectedSigner: TurnkeySigner | null;
+  eip1193: Eip1193Bridge | null;
   network: TAlchemyNetwork;
   setNetwork: (x: TAlchemyNetwork) => void;
-  privateKeyId: string;
-  setPrivateKeyId: (x: string) => void;
+  error: Error | null;
 } | null;
 
 const TurnkeyWalletContext =
@@ -47,38 +33,64 @@ const TurnkeyWalletContext =
 export function TurnkeyWalletContextProvider(props: {
   children: React.ReactNode;
 }) {
-  const [privateKeyId, setPrivateKeyId] = React.useState(
-    TURNKEY_PRIVATE_KEY_ID
-  );
   const [network, setNetwork] = React.useState<TAlchemyNetwork>("goerli");
+  const { credentials } = useCredentialsContext();
+  const {
+    TURNKEY_API_PUBLIC_KEY,
+    TURNKEY_API_PRIVATE_KEY,
+    TURNKEY_BASE_URL,
+    TURNKEY_ORGANIZATION_ID,
+    TURNKEY_PRIVATE_KEY_ID,
+    ALCHEMY_API_KEY,
+  } = credentials;
 
   const contextValue = React.useMemo(() => {
-    const signer = new TurnkeySigner({
-      apiPublicKey: TURNKEY_API_PUBLIC_KEY,
-      apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
-      baseUrl: TURNKEY_BASE_URL,
-      organizationId: TURNKEY_ORGANIZATION_ID,
-      privateKeyId,
-    });
+    let connectedSigner: TurnkeySigner | null = null;
+    let eip1193: Eip1193Bridge | null = null;
+    let error: Error | null = null;
 
-    const provider = new ethers.providers.AlchemyProvider(
-      network,
-      ALCHEMY_API_KEY
-    );
+    try {
+      assertNonEmptyString(TURNKEY_API_PUBLIC_KEY, "TURNKEY_API_PUBLIC_KEY");
+      assertNonEmptyString(TURNKEY_API_PRIVATE_KEY, "TURNKEY_API_PRIVATE_KEY");
+      assertNonEmptyString(TURNKEY_BASE_URL, "TURNKEY_BASE_URL");
+      assertNonEmptyString(TURNKEY_ORGANIZATION_ID, "TURNKEY_ORGANIZATION_ID");
+      assertNonEmptyString(TURNKEY_PRIVATE_KEY_ID, "TURNKEY_PRIVATE_KEY_ID");
 
-    const connectedSigner = signer.connect(provider);
+      const signer = new TurnkeySigner({
+        apiPublicKey: TURNKEY_API_PUBLIC_KEY,
+        apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
+        baseUrl: TURNKEY_BASE_URL,
+        organizationId: TURNKEY_ORGANIZATION_ID,
+        privateKeyId: TURNKEY_PRIVATE_KEY_ID,
+      });
 
-    const eip1193 = new Eip1193Bridge(connectedSigner, provider);
+      const provider = new ethers.providers.AlchemyProvider(
+        network,
+        ALCHEMY_API_KEY
+      );
+
+      connectedSigner = signer.connect(provider);
+      eip1193 = new Eip1193Bridge(connectedSigner, provider);
+    } catch (e) {
+      error = e as Error;
+    }
 
     return {
       connectedSigner,
       eip1193,
       network,
       setNetwork,
-      privateKeyId,
-      setPrivateKeyId,
+      error,
     };
-  }, [privateKeyId, network]);
+  }, [
+    ALCHEMY_API_KEY,
+    TURNKEY_API_PRIVATE_KEY,
+    TURNKEY_API_PUBLIC_KEY,
+    TURNKEY_BASE_URL,
+    TURNKEY_ORGANIZATION_ID,
+    TURNKEY_PRIVATE_KEY_ID,
+    network,
+  ]);
 
   return (
     <TurnkeyWalletContext.Provider value={contextValue}>

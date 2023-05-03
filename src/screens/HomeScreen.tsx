@@ -2,10 +2,12 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { ethers } from "ethers";
 import * as WebBrowser from "expo-web-browser";
 import * as React from "react";
-import { StyleSheet, View } from "react-native";
+import { Button, StyleSheet, View } from "react-native";
 import { LabeledRow } from "../components/Design";
 import { ScrollContainer } from "../components/ScrollContainer";
 import { WalletConnectInputView } from "../components/WalletConnectInputView";
+import { useTypedNavigation } from "../navigation";
+import { useCredentialsContext } from "../turnkey/CredentialsContext";
 import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import {
   alchemyNetworkList,
@@ -14,7 +16,8 @@ import {
 import { getEtherscanUrl, getNetworkDisplayValue } from "../utils";
 
 export function HomeScreen() {
-  const { privateKeyId, network } = useTurnkeyWalletContext();
+  const { network, error } = useTurnkeyWalletContext();
+  const { credentials, hasAllCredentials } = useCredentialsContext();
 
   const walletQuery = useWalletQuery();
 
@@ -22,14 +25,32 @@ export function HomeScreen() {
   const balance = walletQuery.data?.balance;
   const transactionCount = walletQuery.data?.transactionCount;
 
-  return (
-    <ScrollContainer
-      onRefresh={async () => {
-        await walletQuery.mutate(undefined);
-      }}
-    >
-      <View style={styles.root}>
-        <LabeledRow label="Turnkey Private Key ID" value={privateKeyId} />
+  let content: React.ReactNode;
+
+  if (!hasAllCredentials) {
+    content = (
+      <>
+        <LabeledRow
+          label="Welcome!"
+          value="Please fill in your Turnkey credentials"
+        />
+        <SettingsLink />
+      </>
+    );
+  } else if (error != null) {
+    content = (
+      <>
+        <LabeledRow label="Error" value={error.message} />
+        <SettingsLink />
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <LabeledRow
+          label="Turnkey private key ID"
+          value={credentials.TURNKEY_PRIVATE_KEY_ID || "<unknown>"}
+        />
         <NetworkRow />
         <LabeledRow
           label="Wallet address"
@@ -56,8 +77,33 @@ export function HomeScreen() {
           value={transactionCount != null ? String(transactionCount) : "–"}
         />
         <WalletConnectInputView />
-      </View>
+      </>
+    );
+  }
+
+  return (
+    <ScrollContainer
+      onRefresh={async () => {
+        await walletQuery.mutate(undefined);
+      }}
+    >
+      <View style={styles.root}>{content}</View>
     </ScrollContainer>
+  );
+}
+
+function SettingsLink() {
+  const navigation = useTypedNavigation();
+
+  return (
+    <View style={styles.buttonGroup}>
+      <Button
+        title="Update credentials"
+        onPress={() => {
+          navigation.navigate("settings");
+        }}
+      />
+    </View>
   );
 }
 
@@ -105,5 +151,8 @@ function NetworkRow() {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
+  },
+  buttonGroup: {
+    padding: 4,
   },
 });

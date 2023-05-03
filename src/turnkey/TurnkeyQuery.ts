@@ -1,16 +1,23 @@
 import { ethers } from "ethers";
 import useSWR from "swr";
-import {
-  ETHERSCAN_API_KEY,
-  useTurnkeyWalletContext,
-} from "./TurnkeyWalletContext";
+import { useCredentialsContext } from "./CredentialsContext";
+import { useTurnkeyWalletContext } from "./TurnkeyWalletContext";
 
 export function useHistoryQuery() {
-  const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
+  const { credentials } = useCredentialsContext();
+  const { connectedSigner, network } = useTurnkeyWalletContext();
+  const { TURNKEY_PRIVATE_KEY_ID, ETHERSCAN_API_KEY } = credentials;
 
-  const cacheKey = ["history", network, privateKeyId];
+  const cacheKey = ["history", network, TURNKEY_PRIVATE_KEY_ID || "<unknown>"];
 
   return useSWR(cacheKey, async () => {
+    if (connectedSigner == null) {
+      throw new Error(`Signer has not been initialized`);
+    }
+    if (!ETHERSCAN_API_KEY) {
+      throw new Error(`Cannot find ETHERSCAN_API_KEY`);
+    }
+
     const address = await connectedSigner.getAddress();
     const etherscanProvider = new ethers.providers.EtherscanProvider(
       network,
@@ -29,11 +36,17 @@ export function useHistoryQuery() {
 }
 
 export function useWalletQuery() {
-  const { connectedSigner, network, privateKeyId } = useTurnkeyWalletContext();
+  const { credentials } = useCredentialsContext();
+  const { connectedSigner, network } = useTurnkeyWalletContext();
+  const { TURNKEY_PRIVATE_KEY_ID } = credentials;
 
-  const cacheKey = ["wallet", network, privateKeyId];
+  const cacheKey = ["wallet", network, TURNKEY_PRIVATE_KEY_ID || "<unknown>"];
 
   return useSWR(cacheKey, async () => {
+    if (connectedSigner == null) {
+      throw new Error(`Signer has not been initialized`);
+    }
+
     return {
       address: await connectedSigner.getAddress(),
       balance: await connectedSigner.getBalance(),

@@ -14,7 +14,13 @@ export function HistoryScreen() {
 
   let content: React.ReactNode;
 
-  if (historyQuery.data?.transactionList == null) {
+  if (historyQuery.error != null) {
+    content = (
+      <View style={styles.emptyStateContainer}>
+        <Text>Error: {(historyQuery.error as Error).message}</Text>
+      </View>
+    );
+  } else if (historyQuery.data?.transactionList == null) {
     content = (
       <View style={styles.emptyStateContainer}>
         <Text>Loading...</Text>

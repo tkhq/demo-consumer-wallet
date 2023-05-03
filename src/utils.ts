@@ -19,3 +19,15 @@ export function getEtherscanUrl(
 export function truncateAddress(input: string): string {
   return input.slice(0, 6) + "..." + input.slice(-4);
 }
+
+export function assertNonEmptyString(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  x: any,
+  name: string
+): asserts x is string {
+  if (typeof x !== "string" || !x) {
+    throw new Error(
+      `Expected ${name} to be a non-empty string, got ${JSON.stringify(x)}`
+    );
+  }
+}

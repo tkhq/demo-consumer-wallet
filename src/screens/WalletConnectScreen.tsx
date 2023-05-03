@@ -85,7 +85,7 @@ function useWalletConnectSubscription(input: { uri: string }) {
   const lastConnectedUri = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    if (address == null || chainId == null) {
+    if (address == null || chainId == null || eip1193 == null) {
       return;
     }
     if (lastConnectedUri.current === uri) {

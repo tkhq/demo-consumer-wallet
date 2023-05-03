@@ -9,6 +9,7 @@ export type TStackParamList = {
   history: undefined;
   walletconnect: { uri: string };
   scanner: undefined;
+  settings: undefined;
 };
 
 export type TWalletConnectScreenProps = NativeStackScreenProps<

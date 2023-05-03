@@ -32,7 +32,7 @@ export function WalletConnectInputView() {
         placeholder="wc:..."
         onSubmitEditing={doNavigate}
       />
-      <View style={styles.connectButtonWrapper}>
+      <View style={styles.buttonGroup}>
         <Button
           title="Scan QR code"
           onPress={() => {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  connectButtonWrapper: {
+  buttonGroup: {
     padding: 4,
   },
 });
