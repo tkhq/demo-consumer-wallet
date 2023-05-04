@@ -216,10 +216,20 @@ function useWalletConnectSubscription(input: { uri: string }) {
                 });
 
                 const { method, params } = payload;
-                const txHash = await eip1193.send(
-                  method,
-                  cleanUpSendTxParams(params)
-                );
+
+                let txHash: string;
+                try {
+                  txHash = await eip1193.send(
+                    method,
+                    cleanUpSendTxParams(params)
+                  );
+                } catch (error) {
+                  appendLog({
+                    label,
+                    data: `Error: ${(error as Error).message}`,
+                  });
+                  return;
+                }
 
                 connector.approveRequest({
                   id: payload.id,
