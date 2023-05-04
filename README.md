@@ -14,10 +14,6 @@ $ git clone https://github.com/tkhq/demo-consumer-wallet
 $ cd demo-consumer-wallet/
 $ corepack enable # Updates npm for the local project
 
-# *Optional*: prefill your Turnkey credentials in `.env.development.local`.
-# Feel free to skip this step; only development builds can use prefilled variables (for convenience)
-$ cp .env.example .env.development.local
-
 $ npm install
 $ npm start # Follow the instructions on screen to build to your device or a simulator
 ```

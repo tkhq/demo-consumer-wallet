@@ -75,7 +75,16 @@ export function CredentialsContextProvider(props: {
         // Only use prefilled variables in dev builds
         if (__DEV__) {
           if (storedValue == null) {
-            result[key] = ExpoConstants.manifest?.extra?.[key] || null;
+            const maybePrefilledValue: string | undefined =
+              ExpoConstants.manifest?.extra?.[key];
+
+            if (
+              maybePrefilledValue &&
+              // Not a placeholder
+              !maybePrefilledValue.startsWith("<")
+            ) {
+              result[key] = maybePrefilledValue ?? null;
+            }
           }
         }
 
