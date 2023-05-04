@@ -5,25 +5,27 @@ import * as React from "react";
 import { assertNonEmptyString } from "../utils";
 import { useCredentialsContext } from "./CredentialsContext";
 
-// This is the list that Alchemy supports in Ethers v5
-export const alchemyNetworkList = [
+// This is the list that Infura supports in Ethers v5
+// https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/providers/src.ts/infura-provider.ts#L86
+export const infuraNetworkList = [
   "homestead",
   "goerli",
+  "sepolia",
   "matic",
   "maticmum",
-  "arbitrum",
-  "arbitrum-goerli",
   "optimism",
   "optimism-goerli",
+  "arbitrum",
+  "arbitrum-goerli",
 ] as const;
 
-export type TAlchemyNetwork = (typeof alchemyNetworkList)[number];
+export type TInfuraNetwork = (typeof infuraNetworkList)[number];
 
 type TTurnkeyWalletContextValue = {
   connectedSigner: TurnkeySigner | null;
   eip1193: Eip1193Bridge | null;
-  network: TAlchemyNetwork;
-  setNetwork: (x: TAlchemyNetwork) => void;
+  network: TInfuraNetwork;
+  setNetwork: (x: TInfuraNetwork) => void;
   error: Error | null;
 } | null;
 
@@ -33,7 +35,7 @@ const TurnkeyWalletContext =
 export function TurnkeyWalletContextProvider(props: {
   children: React.ReactNode;
 }) {
-  const [network, setNetwork] = React.useState<TAlchemyNetwork>("goerli");
+  const [network, setNetwork] = React.useState<TInfuraNetwork>("homestead");
   const { credentials } = useCredentialsContext();
   const {
     TURNKEY_API_PUBLIC_KEY,
@@ -41,7 +43,7 @@ export function TurnkeyWalletContextProvider(props: {
     TURNKEY_BASE_URL,
     TURNKEY_ORGANIZATION_ID,
     TURNKEY_PRIVATE_KEY_ID,
-    ALCHEMY_API_KEY,
+    INFURA_API_KEY,
   } = credentials;
 
   const contextValue = React.useMemo(() => {
@@ -64,9 +66,9 @@ export function TurnkeyWalletContextProvider(props: {
         privateKeyId: TURNKEY_PRIVATE_KEY_ID,
       });
 
-      const provider = new ethers.providers.AlchemyProvider(
+      const provider = new ethers.providers.InfuraProvider(
         network,
-        ALCHEMY_API_KEY
+        INFURA_API_KEY
       );
 
       connectedSigner = signer.connect(provider);
@@ -83,7 +85,7 @@ export function TurnkeyWalletContextProvider(props: {
       error,
     };
   }, [
-    ALCHEMY_API_KEY,
+    INFURA_API_KEY,
     TURNKEY_API_PRIVATE_KEY,
     TURNKEY_API_PUBLIC_KEY,
     TURNKEY_BASE_URL,

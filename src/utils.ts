@@ -1,12 +1,12 @@
-import type { TAlchemyNetwork } from "./turnkey/TurnkeyWalletContext";
+import type { TInfuraNetwork } from "./turnkey/TurnkeyWalletContext";
 
-export function getNetworkDisplayValue(network: TAlchemyNetwork): string {
+export function getNetworkDisplayValue(network: TInfuraNetwork): string {
   return network === "homestead" ? "mainnet" : network;
 }
 
 export function getEtherscanUrl(
   urlPath: string,
-  network: TAlchemyNetwork
+  network: TInfuraNetwork
 ): string {
   return new URL(
     urlPath,

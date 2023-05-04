@@ -8,7 +8,7 @@ export const KEY_LIST = [
   "TURNKEY_BASE_URL",
   "TURNKEY_ORGANIZATION_ID",
   "TURNKEY_PRIVATE_KEY_ID",
-  "ALCHEMY_API_KEY",
+  "INFURA_API_KEY",
   "ETHERSCAN_API_KEY",
 ] as const;
 
@@ -18,7 +18,7 @@ type TCredentials = {
   TURNKEY_BASE_URL: string | null;
   TURNKEY_ORGANIZATION_ID: string | null;
   TURNKEY_PRIVATE_KEY_ID: string | null;
-  ALCHEMY_API_KEY: string | null;
+  INFURA_API_KEY: string | null;
   ETHERSCAN_API_KEY: string | null;
 };
 
@@ -28,7 +28,7 @@ export const initialCredentialsState = {
   TURNKEY_BASE_URL: "https://coordinator-beta.turnkey.io",
   TURNKEY_ORGANIZATION_ID: null,
   TURNKEY_PRIVATE_KEY_ID: null,
-  ALCHEMY_API_KEY: null,
+  INFURA_API_KEY: null,
   ETHERSCAN_API_KEY: null,
 };
 

@@ -10,7 +10,7 @@ import { useTypedNavigation } from "../navigation";
 import { useCredentialsContext } from "../turnkey/CredentialsContext";
 import { useWalletQuery } from "../turnkey/TurnkeyQuery";
 import {
-  alchemyNetworkList,
+  infuraNetworkList,
   useTurnkeyWalletContext,
 } from "../turnkey/TurnkeyWalletContext";
 import { getEtherscanUrl, getNetworkDisplayValue } from "../utils";
@@ -117,7 +117,7 @@ function NetworkRow() {
       label="Current network"
       value={getNetworkDisplayValue(currentNetwork)}
       onValuePress={() => {
-        const displayList = alchemyNetworkList.map(getNetworkDisplayValue);
+        const displayList = infuraNetworkList.map(getNetworkDisplayValue);
 
         const options = [...displayList, "Cancel"];
         const cancelButtonIndex = options.length - 1;
@@ -132,9 +132,9 @@ function NetworkRow() {
               return;
             }
 
-            const selectedNetwork = alchemyNetworkList[selectedIndex];
+            const selectedNetwork = infuraNetworkList[selectedIndex];
             if (
-              !alchemyNetworkList.includes(selectedNetwork) ||
+              !infuraNetworkList.includes(selectedNetwork) ||
               selectedNetwork === currentNetwork
             ) {
               return;
