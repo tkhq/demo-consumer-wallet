@@ -1,13 +1,13 @@
 // @ts-check
 
+const path = require("path");
 const dotenv = require("dotenv");
 
-const envResult = dotenv.config();
+const envResult = dotenv.config({
+  path: path.resolve(process.cwd(), ".env.development.local"),
+});
 
-if (envResult.error) {
-  console.error(envResult.error);
-  throw envResult.error;
-}
+const INCLUDE_ENV_FOR_DEV = process.env.INCLUDE_ENV_FOR_DEV === "1";
 
 /**
  * @type {import("@expo/config").ExpoConfig}
@@ -37,7 +37,9 @@ const config = {
   web: {
     favicon: "./assets/favicon.png",
   },
-  extra: envResult.parsed,
+  extra: {
+    ...(INCLUDE_ENV_FOR_DEV ? envResult.parsed : {}),
+  },
   plugins: [
     [
       "expo-barcode-scanner",
