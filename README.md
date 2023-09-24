@@ -39,10 +39,10 @@ Upon clicking "Save" the settings are saved in your phone's keychain and  you sh
 
 ## Technical tl;dr
 
-Turnkey API keys and other credentials are encrypted and stored in your phone's Keychain: https://github.com/tkhq/demo-consumer-wallet/blob/e479ed7c0db8037e36166c6e2464ceb3d38bd848/src/turnkey/CredentialsContext.tsx#L111
+Turnkey API keys and other credentials are encrypted and stored in your phone's Keychain: https://github.com/tkhq/demo-consumer-wallet/blob/14f7e5535c453ab9990373e0dff61165329be15b/src/turnkey/CredentialsContext.tsx#L111
 
 Create a [`TurnkeySigner`](https://github.com/tkhq/sdk/tree/main/packages/ethers), bring your own provider, then bridge it via EIP-1193:
-https://github.com/tkhq/demo-consumer-wallet/blob/e479ed7c0db8037e36166c6e2464ceb3d38bd848/src/turnkey/TurnkeyWalletContext.tsx#L61-L75
+https://github.com/tkhq/demo-consumer-wallet/blob/14f7e5535c453ab9990373e0dff61165329be15b/src/turnkey/TurnkeyWalletContext.tsx#L73-L85
 
 WalletConnect payloads are signed by Turnkey and broadcasted by your provider, all via the bridge:
-https://github.com/tkhq/demo-consumer-wallet/blob/e479ed7c0db8037e36166c6e2464ceb3d38bd848/src/screens/WalletConnectScreen.tsx#L222-L225
+https://github.com/tkhq/demo-consumer-wallet/blob/14f7e5535c453ab9990373e0dff61165329be15b/src/screens/WalletConnectScreen.tsx#L222-L225
