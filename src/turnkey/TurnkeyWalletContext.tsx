@@ -4,6 +4,9 @@ import { ethers } from "ethers";
 import * as React from "react";
 import { assertNonEmptyString } from "../utils";
 import { useCredentialsContext } from "./CredentialsContext";
+import { TurnkeyClient } from "@turnkey/http";
+import { ApiKeyStamper } from "@turnkey/api-key-stamper";
+
 
 // This is the list that Infura supports in Ethers v5
 // https://github.com/ethers-io/ethers.js/blob/f97b92bbb1bde22fcc44100af78d7f31602863ab/packages/providers/src.ts/infura-provider.ts#L86
@@ -58,10 +61,17 @@ export function TurnkeyWalletContextProvider(props: {
       assertNonEmptyString(TURNKEY_ORGANIZATION_ID, "TURNKEY_ORGANIZATION_ID");
       assertNonEmptyString(TURNKEY_PRIVATE_KEY_ID, "TURNKEY_PRIVATE_KEY_ID");
 
-      const signer = new TurnkeySigner({
+      const stamper = new ApiKeyStamper({
         apiPublicKey: TURNKEY_API_PUBLIC_KEY,
         apiPrivateKey: TURNKEY_API_PRIVATE_KEY,
+      });
+
+      const client = new TurnkeyClient({
         baseUrl: TURNKEY_BASE_URL,
+      }, stamper)
+      
+      const signer = new TurnkeySigner({
+        client: client,
         organizationId: TURNKEY_ORGANIZATION_ID,
         privateKeyId: TURNKEY_PRIVATE_KEY_ID,
       });

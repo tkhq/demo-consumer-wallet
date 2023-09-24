@@ -25,7 +25,7 @@ type TCredentials = {
 export const initialCredentialsState = {
   TURNKEY_API_PUBLIC_KEY: null,
   TURNKEY_API_PRIVATE_KEY: null,
-  TURNKEY_BASE_URL: "https://coordinator-beta.turnkey.io",
+  TURNKEY_BASE_URL: "https://api.turnkey.com",
   TURNKEY_ORGANIZATION_ID: null,
   TURNKEY_PRIVATE_KEY_ID: null,
   INFURA_API_KEY: null,
